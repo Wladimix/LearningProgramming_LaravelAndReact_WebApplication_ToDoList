@@ -116,38 +116,40 @@ export default function TaskManager({userId, userName, userPatronymic}) {
             });
         } else if (expirationDateStatus === 'tasks for today') {
             let date = new Date();
-            let today = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+            let theBeginningOfToday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            let theEndOfToday = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
             
             linesWithTasks = tasks.map((task) => {
-                let dateDifference = dateProcessing(task.expirationDate) - today;
+                let expirationDate = dateProcessing(task.expirationDate);
 
-                if (dateDifference <= 86400000 && dateDifference >= 0) {
+                if (new Date() >= theBeginningOfToday && new Date() <= expirationDate && expirationDate < theEndOfToday) {
                     return <tr key={generateId()}>
                     <td>{task.title}</td>
                     <td>{task.priority}</td>
                     <td>{task.expirationDate}</td>
                     <td>{task.responsible}</td>
                     <td>{task.status}</td>
-                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator)}</td>
+                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator, task.id)}</td>
                 </tr>
                 }
 
             });
         }  else if (expirationDateStatus === 'tasks for the week') {
             let date = new Date();
-            let today = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+            let theBeginningOfToday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             
             linesWithTasks = tasks.map((task) => {
-                let dateDifference = dateProcessing(task.expirationDate) - today;
+                let expirationDate = dateProcessing(task.expirationDate);
 
-                if (dateDifference <= 604800000 && dateDifference >= 0) {
+                if (new Date() >= theBeginningOfToday && new Date() <= expirationDate && expirationDate <= getEndOfTheWeek()) {
                     return <tr key={generateId()}>
                     <td>{task.title}</td>
                     <td>{task.priority}</td>
                     <td>{task.expirationDate}</td>
                     <td>{task.responsible}</td>
                     <td>{task.status}</td>
-                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator)}</td>
+                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator, task.id)}</td>
                 </tr>
                 }
 
@@ -166,7 +168,7 @@ export default function TaskManager({userId, userName, userPatronymic}) {
                     <td>{task.expirationDate}</td>
                     <td>{task.responsible}</td>
                     <td>{task.status}</td>
-                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator)}</td>
+                    <td style={{textAlign: 'center'}}>{generateButtonsAction(task.iCreator, task.id)}</td>
                 </tr>
                 }
 
@@ -271,6 +273,18 @@ export default function TaskManager({userId, userName, userPatronymic}) {
         let dateResult = new Date(arrDate[0], arrDate[1] - 1, arrDate[2], arrTime[0], arrTime[1], arrTime[2]);
         return dateResult;
     }
+
+    function getEndOfTheWeek() {
+        let date = new Date();
+        let dayOfWeek = date.getDay();
+        if (dayOfWeek === 0) {
+            dayOfWeek = 7;
+        }
+        date.setDate(date.getDate() + (7 - date.getDay()));
+        date.setHours(23, 59, 59);
+        let endOfTheWeek = new Date(date.getFullYear(), ('0' + (date.getMonth())).slice(-2), ('0' + date.getDate()).slice(-2), date.getHours(), date.getMinutes(), date.getSeconds());
+        return endOfTheWeek;
+    };
 
     function settingUpTheTaskStyle(task) {
         if (new Date(task.expirationDate) <= new Date && task.status === "Выполняется") {

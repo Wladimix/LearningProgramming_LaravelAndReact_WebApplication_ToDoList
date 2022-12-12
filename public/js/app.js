@@ -8675,10 +8675,11 @@ function TaskManager(_ref) {
       });
     } else if (expirationDateStatus === 'tasks for today') {
       var date = new Date();
-      var today = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+      var theBeginningOfToday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      var theEndOfToday = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
       linesWithTasks = tasks.map(function (task) {
-        var dateDifference = dateProcessing(task.expirationDate) - today;
-        if (dateDifference <= 86400000 && dateDifference >= 0) {
+        var expirationDate = dateProcessing(task.expirationDate);
+        if (new Date() >= theBeginningOfToday && new Date() <= expirationDate && expirationDate < theEndOfToday) {
           return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
               children: task.title
@@ -8694,17 +8695,17 @@ function TaskManager(_ref) {
               style: {
                 textAlign: 'center'
               },
-              children: generateButtonsAction(task.iCreator)
+              children: generateButtonsAction(task.iCreator, task.id)
             })]
           }, generateId());
         }
       });
     } else if (expirationDateStatus === 'tasks for the week') {
       var _date = new Date();
-      var _today = new Date(_date.getFullYear(), _date.getMonth(), _date.getDate(), _date.getHours(), _date.getMinutes(), _date.getSeconds());
+      var _theBeginningOfToday = new Date(_date.getFullYear(), _date.getMonth(), _date.getDate());
       linesWithTasks = tasks.map(function (task) {
-        var dateDifference = dateProcessing(task.expirationDate) - _today;
-        if (dateDifference <= 604800000 && dateDifference >= 0) {
+        var expirationDate = dateProcessing(task.expirationDate);
+        if (new Date() >= _theBeginningOfToday && new Date() <= expirationDate && expirationDate <= getEndOfTheWeek()) {
           return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
               children: task.title
@@ -8720,16 +8721,16 @@ function TaskManager(_ref) {
               style: {
                 textAlign: 'center'
               },
-              children: generateButtonsAction(task.iCreator)
+              children: generateButtonsAction(task.iCreator, task.id)
             })]
           }, generateId());
         }
       });
     } else if (expirationDateStatus === 'tasks for the future') {
       var _date2 = new Date();
-      var _today2 = new Date(_date2.getFullYear(), _date2.getMonth(), _date2.getDate(), _date2.getHours(), _date2.getMinutes(), _date2.getSeconds());
+      var today = new Date(_date2.getFullYear(), _date2.getMonth(), _date2.getDate(), _date2.getHours(), _date2.getMinutes(), _date2.getSeconds());
       linesWithTasks = tasks.map(function (task) {
-        var dateDifference = dateProcessing(task.expirationDate) - _today2;
+        var dateDifference = dateProcessing(task.expirationDate) - today;
         if (dateDifference >= 0) {
           return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
@@ -8746,7 +8747,7 @@ function TaskManager(_ref) {
               style: {
                 textAlign: 'center'
               },
-              children: generateButtonsAction(task.iCreator)
+              children: generateButtonsAction(task.iCreator, task.id)
             })]
           }, generateId());
         }
@@ -8880,6 +8881,18 @@ function TaskManager(_ref) {
     var dateResult = new Date(arrDate[0], arrDate[1] - 1, arrDate[2], arrTime[0], arrTime[1], arrTime[2]);
     return dateResult;
   }
+  function getEndOfTheWeek() {
+    var date = new Date();
+    var dayOfWeek = date.getDay();
+    if (dayOfWeek === 0) {
+      dayOfWeek = 7;
+    }
+    date.setDate(date.getDate() + (7 - date.getDay()));
+    date.setHours(23, 59, 59);
+    var endOfTheWeek = new Date(date.getFullYear(), ('0' + date.getMonth()).slice(-2), ('0' + date.getDate()).slice(-2), date.getHours(), date.getMinutes(), date.getSeconds());
+    return endOfTheWeek;
+  }
+  ;
   function settingUpTheTaskStyle(task) {
     if (new Date(task.expirationDate) <= new Date() && task.status === "Выполняется") {
       return {
